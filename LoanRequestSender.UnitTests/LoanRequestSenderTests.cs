@@ -17,9 +17,11 @@ namespace LoanRequestSender.UnitTests
         [Fact]
         public async void When_A_Valid_LoanQuoteRequest_Is_Sent_To_Registered_Banks_LoanQuoteResponses_Are_Returned()
         {
+            var logger = MockLogger();
             var loanRequestSender = new LoanRequestSenderFilter(
                 new MockHttpMessageHandlerFactory(),
-                MockLogger());
+                logger,
+                new DefaultResiliencePolicy(logger));
             var quoteResponse = await loanRequestSender
                 .GetLoanQuotesFromRegisteredBanks(
                 new LoanQuoteRequest

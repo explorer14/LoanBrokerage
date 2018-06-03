@@ -20,19 +20,25 @@ namespace LoanRequestSender
                 .AppSettings["AzureWebJobsStorage"];
 
             var svcCollection = new ServiceCollection();
+            svcCollection.AddSingleton<ILogger>((_) =>
+                new LoggerConfiguration().WriteTo.Console().CreateLogger());
+
             svcCollection.AddScoped<IHttpMessageHandlerFactory,
                 MockHttpMessageHandlerFactory>();
+
             svcCollection.AddScoped<ILoanRequestSenderFilter,
                 LoanRequestSenderFilter>();
+
             svcCollection.AddScoped<IPipe<LoanQuoteResponse>,
                 AggregatedLoanQuotesPipe>();
+
+            svcCollection.AddScoped<IResiliencePolicy,
+                DefaultResiliencePolicy>();
 
             svcCollection.AddSingleton(_ =>
             SimpleQueueHelperFactory.Create(
                 "aggregated-loan-quotes",
                 storageConnectionString));
-            svcCollection.AddSingleton<ILogger>((_) =>
-                new LoggerConfiguration().WriteTo.Console().CreateLogger());
 
             svcCollection.AddSingleton<Functions>();
 

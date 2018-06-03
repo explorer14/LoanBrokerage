@@ -3,7 +3,6 @@ using LoanRequestSender.Filter;
 using Microsoft.Azure.WebJobs;
 using Newtonsoft.Json;
 using Serilog;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 

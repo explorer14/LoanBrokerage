@@ -1,7 +1,6 @@
 ﻿using CustomerNotifier.Filter;
 using Microsoft.Azure.WebJobs;
 using Newtonsoft.Json;
-using Serilog;
 using System.IO;
 using System.Threading.Tasks;
 
