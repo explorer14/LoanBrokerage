@@ -1,0 +1,6 @@
+cc-r
+{"OriginalLoanRequest":{"RequestedLoanAmount":100.0,"CitizenServiceNumber":"6332c268-4d00-4cec-a250-dcb69e84d5b4"},"CreditCheckReport":{"CreditScore":9,"CreditRating":"A","Description":"Awesome Credit History","CitizenServiceNumber":"6332c268-4d00-4cec-a250-dcb69e84d5b4"}}
+
+agg-r
+{"BSN":"6332c268-4d00-4cec-a250-dcb69e84d5b4","OriginalAmountRequested":100.0,"Quotes":[{"Bank":"Test","ApprovableAmount":100.0},{"Bank":"Test","ApprovableAmount":100.0}]}
+
