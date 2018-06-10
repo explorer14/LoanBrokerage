@@ -8,36 +8,19 @@ namespace LoanRequestRetriever
     {
         public async Task<IReadOnlyCollection<LoanRequest>> AllSubmittedLoanRequests()
         {
-            return await Task.FromResult(
-                new[]
-                {
+            List<LoanRequest> loanRequests = new List<LoanRequest>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                loanRequests.Add(
                     new LoanRequest
                     {
-                        RequestedLoanAmount = 100.0m,
+                        RequestedLoanAmount = (i + 1) * 100,
                         CitizenServiceNumber = Guid.NewGuid().ToString()
-                    },
-                    new LoanRequest
-                    {
-                        RequestedLoanAmount = 200.0m,
-                        CitizenServiceNumber = Guid.NewGuid().ToString()
-                    },
-                    new LoanRequest
-                    {
-                        RequestedLoanAmount = 300.0m,
-                        CitizenServiceNumber = Guid.NewGuid().ToString()
-                    },
-                    new LoanRequest
-                    {
-                        RequestedLoanAmount = 400.0m,
-                        CitizenServiceNumber = Guid.NewGuid().ToString()
-                    },
-                    new LoanRequest
-                    {
-                        RequestedLoanAmount = 500.0m,
-                        CitizenServiceNumber = Guid.NewGuid().ToString()
-                    },
-                    new LoanRequest()
-                });
+                    });
+            }
+
+            return await Task.FromResult(loanRequests);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace CreditChecker
             svcCollection.AddSingleton<ILogger>((_) =>
                 new LoggerConfiguration().WriteTo.Console().CreateLogger());
 
-            svcCollection.AddSingleton<Functions>();
+            svcCollection.AddTransient<Functions>();
 
             var config = new JobHostConfiguration();
             config.DashboardConnectionString = dashboardConnectionString;

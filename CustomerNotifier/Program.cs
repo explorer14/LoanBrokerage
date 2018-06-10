@@ -25,7 +25,7 @@ namespace CustomerNotifier
                 ConsoleNotificationService>();
             svcCollection.AddScoped<ICustomerRepository,
                 MockCustomerRepository>();
-            svcCollection.AddSingleton<Functions>();
+            svcCollection.AddTransient<Functions>();
             svcCollection.AddSingleton<ILogger>(_ =>
             new LoggerConfiguration()
             .WriteTo

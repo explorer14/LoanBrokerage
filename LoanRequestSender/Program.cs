@@ -40,7 +40,7 @@ namespace LoanRequestSender
                 "aggregated-loan-quotes",
                 storageConnectionString));
 
-            svcCollection.AddSingleton<Functions>();
+            svcCollection.AddTransient<Functions>();
 
             var config = new JobHostConfiguration();
             config.DashboardConnectionString = dashboardConnectionString;

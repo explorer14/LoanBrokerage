@@ -28,7 +28,7 @@ namespace LoanRequestRetriever
             SimpleQueueHelperFactory.Create(
                 "submitted-loan-requests",
                 storageConnectionString));
-            svcCollection.AddSingleton<Functions>();
+            svcCollection.AddTransient<Functions>();
             svcCollection.AddSingleton<ILogger>((_) =>
                 new LoggerConfiguration().WriteTo.Console().CreateLogger());
 
