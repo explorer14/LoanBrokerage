@@ -35,15 +35,15 @@ void SetUpNuget()
 {
 	var feed = new
 	{
-		Name = "SkynetNuget",
-	    Source = "https://skynetcode.pkgs.visualstudio.com/_packaging/skynetpackagefeed/nuget/v3/index.json"
+		Name = "<feednam>",
+	    Source = "<your feed url>"
 	};
 
 	if (!NuGetHasSource(source:feed.Source))
 	{
 	    var nugetSourceSettings = new NuGetSourcesSettings
                              {
-                                 UserName = "skynetcode",
+                                 UserName = "<your usename>",
                                  Password = EnvironmentVariable("NUGET_PAT"),
                                  Verbosity = NuGetVerbosity.Detailed
                              };		
