@@ -10,7 +10,7 @@ namespace LoanRequestRetriever
         {
             List<LoanRequest> loanRequests = new List<LoanRequest>();
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 5; i++)
             {
                 loanRequests.Add(
                     new LoanRequest

@@ -1,10 +1,10 @@
 ﻿using Azure.StorageQueue.Helper;
 using Common.Abstractions;
+using Common.Extensions;
 using CreditChecker.Filter;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 using System;
 using System.Configuration;
 
@@ -34,8 +34,12 @@ namespace CreditChecker
                 "credit-checked-loan-requests",
                 storageConnectionString));
 
-            svcCollection.AddSingleton<ILogger>((_) =>
-                new LoggerConfiguration().WriteTo.Console().CreateLogger());
+            svcCollection.AddSplunkLogging(
+                new SplunkOptions
+                {
+                    SplunkHost = ConfigurationManager.AppSettings["SplunkHost"],
+                    Token = ConfigurationManager.AppSettings["CCToken"]
+                });
 
             svcCollection.AddTransient<Functions>();
 
@@ -46,6 +50,7 @@ namespace CreditChecker
                 svcCollection.BuildServiceProvider());
 
             var host = new JobHost(config);
+
             // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }

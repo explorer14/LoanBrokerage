@@ -1,8 +1,8 @@
-﻿using CustomerNotifier.Filter;
+﻿using Common.Extensions;
+using CustomerNotifier.Filter;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 using System;
 using System.Configuration;
 
@@ -26,11 +26,13 @@ namespace CustomerNotifier
             svcCollection.AddScoped<ICustomerRepository,
                 MockCustomerRepository>();
             svcCollection.AddTransient<Functions>();
-            svcCollection.AddSingleton<ILogger>(_ =>
-            new LoggerConfiguration()
-            .WriteTo
-            .Console()
-            .CreateLogger());
+
+            svcCollection.AddSplunkLogging(
+                new SplunkOptions
+                {
+                    SplunkHost = ConfigurationManager.AppSettings["SplunkHost"],
+                    Token = ConfigurationManager.AppSettings["CNToken"]
+                });
 
             var config = new JobHostConfiguration();
 
@@ -44,6 +46,7 @@ namespace CustomerNotifier
             config.JobActivator = new MyActivator(
                 svcCollection.BuildServiceProvider());
             var host = new JobHost(config);
+
             // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }
