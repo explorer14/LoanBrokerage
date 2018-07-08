@@ -14,48 +14,21 @@ namespace LoanRequestSender
     {
         private static void Main()
         {
-            var dashboardConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsDashboard"];
-            var storageConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsStorage"];
-
+            var dashboardConnectionString = ConfigurationManager.AppSettings["AzureWebJobsDashboard"];
+            var storageConnectionString = ConfigurationManager.AppSettings["AzureWebJobsStorage"];
             var svcCollection = new ServiceCollection();
-
-            svcCollection.AddSplunkLogging(
-                new SplunkOptions
-                {
-                    SplunkHost = ConfigurationManager.AppSettings["SplunkHost"],
-                    Token = ConfigurationManager.AppSettings["LRSToken"]
-                });
-
-            svcCollection.AddScoped<IHttpMessageHandlerFactory,
-                MockHttpMessageHandlerFactory>();
-
-            svcCollection.AddScoped<ILoanRequestSenderFilter,
-                LoanRequestSenderFilter>();
-
-            svcCollection.AddScoped<IPipe<LoanQuoteResponse>,
-                AggregatedLoanQuotesPipe>();
-
-            svcCollection.AddScoped<IResiliencePolicy,
-                DefaultResiliencePolicy>();
-
-            svcCollection.AddSingleton(_ =>
-            SimpleQueueHelperFactory.Create(
-                "aggregated-loan-quotes",
-                storageConnectionString));
-
+            svcCollection.AddSplunkLogging(new SplunkOptions { SplunkHost = ConfigurationManager.AppSettings["SplunkHost"], Token = ConfigurationManager.AppSettings["LRSToken"] });
+            svcCollection.AddScoped<IHttpMessageHandlerFactory, MockHttpMessageHandlerFactory>();
+            svcCollection.AddScoped<ILoanRequestSenderFilter, LoanRequestSenderFilter>();
+            svcCollection.AddScoped<IPipe<LoanQuoteResponse>, AggregatedLoanQuotesPipe>();
+            svcCollection.AddScoped<IResiliencePolicy, DefaultResiliencePolicy>();
+            svcCollection.AddSingleton(_ => SimpleQueueHelperFactory.Create("aggregated-loan-quotes", storageConnectionString));
             svcCollection.AddTransient<Functions>();
-
             var config = new JobHostConfiguration();
             config.DashboardConnectionString = dashboardConnectionString;
             config.StorageConnectionString = storageConnectionString;
-            config.JobActivator = new MyActivator(
-                svcCollection.BuildServiceProvider());
-
+            config.JobActivator = new MyActivator(svcCollection.BuildServiceProvider());
             var host = new JobHost(config);
-
-            // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }
     }

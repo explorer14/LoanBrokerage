@@ -12,28 +12,14 @@ namespace CustomerNotifier
     {
         private static void Main()
         {
-            var dashboardConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsDashboard"];
-            var storageConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsStorage"];
-
+            var dashboardConnectionString = ConfigurationManager.AppSettings["AzureWebJobsDashboard"];
+            var storageConnectionString = ConfigurationManager.AppSettings["AzureWebJobsStorage"];
             var svcCollection = new ServiceCollection();
-
-            svcCollection.AddScoped<ICustomerNotifierFilter,
-                CustomerNotifierFilter>();
-            svcCollection.AddScoped<INotificationService,
-                ConsoleNotificationService>();
-            svcCollection.AddScoped<ICustomerRepository,
-                MockCustomerRepository>();
+            svcCollection.AddScoped<ICustomerNotifierFilter, CustomerNotifierFilter>();
+            svcCollection.AddScoped<INotificationService, ConsoleNotificationService>();
+            svcCollection.AddScoped<ICustomerRepository, MockCustomerRepository>();
             svcCollection.AddTransient<Functions>();
-
-            svcCollection.AddSplunkLogging(
-                new SplunkOptions
-                {
-                    SplunkHost = ConfigurationManager.AppSettings["SplunkHost"],
-                    Token = ConfigurationManager.AppSettings["CNToken"]
-                });
-
+            svcCollection.AddSplunkLogging(new SplunkOptions { SplunkHost = ConfigurationManager.AppSettings["SplunkHost"], Token = ConfigurationManager.AppSettings["CNToken"] });
             var config = new JobHostConfiguration();
 
             if (config.IsDevelopment)
@@ -43,11 +29,8 @@ namespace CustomerNotifier
 
             config.DashboardConnectionString = dashboardConnectionString;
             config.StorageConnectionString = storageConnectionString;
-            config.JobActivator = new MyActivator(
-                svcCollection.BuildServiceProvider());
+            config.JobActivator = new MyActivator(svcCollection.BuildServiceProvider());
             var host = new JobHost(config);
-
-            // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }
     }

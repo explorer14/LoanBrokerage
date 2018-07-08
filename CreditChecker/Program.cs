@@ -14,44 +14,21 @@ namespace CreditChecker
     {
         private static void Main()
         {
-            var dashboardConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsDashboard"];
-            var storageConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsStorage"];
+            var dashboardConnectionString = ConfigurationManager.AppSettings["AzureWebJobsDashboard"];
+            var storageConnectionString = ConfigurationManager.AppSettings["AzureWebJobsStorage"];
 
             var svcCollection = new ServiceCollection();
-            svcCollection.AddScoped<IHttpMessageHandlerFactory,
-                MockHttpMessageHandlerFactory>();
-
-            svcCollection.AddScoped<ICreditCheckFilter,
-                CreditCheckFilter>();
-
-            svcCollection.AddScoped<IPipe<EnrichedLoanRequest>,
-                QueueBackedLoanQuoteSubmissionPipe>();
-
-            svcCollection.AddSingleton(_ =>
-            SimpleQueueHelperFactory.Create(
-                "credit-checked-loan-requests",
-                storageConnectionString));
-
-            svcCollection.AddSplunkLogging(
-                new SplunkOptions
-                {
-                    SplunkHost = ConfigurationManager.AppSettings["SplunkHost"],
-                    Token = ConfigurationManager.AppSettings["CCToken"]
-                });
-
+            svcCollection.AddScoped<IHttpMessageHandlerFactory, MockHttpMessageHandlerFactory>();
+            svcCollection.AddScoped<ICreditCheckFilter, CreditCheckFilter>();
+            svcCollection.AddScoped<IPipe<EnrichedLoanRequest>, QueueBackedLoanQuoteSubmissionPipe>();
+            svcCollection.AddSingleton(_ => SimpleQueueHelperFactory.Create("credit-checked-loan-requests", storageConnectionString));
+            svcCollection.AddSplunkLogging(new SplunkOptions { SplunkHost = ConfigurationManager.AppSettings["SplunkHost"], Token = ConfigurationManager.AppSettings["CCToken"] });
             svcCollection.AddTransient<Functions>();
-
             var config = new JobHostConfiguration();
             config.DashboardConnectionString = dashboardConnectionString;
             config.StorageConnectionString = storageConnectionString;
-            config.JobActivator = new MyActivator(
-                svcCollection.BuildServiceProvider());
-
+            config.JobActivator = new MyActivator(svcCollection.BuildServiceProvider());
             var host = new JobHost(config);
-
-            // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }
     }

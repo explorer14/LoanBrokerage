@@ -17,35 +17,19 @@ namespace LoanRequestRetriever
         {
             ServicePointManager.DefaultConnectionLimit = 20;
 
-            var dashboardConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsDashboard"];
-            var storageConnectionString = ConfigurationManager
-                .AppSettings["AzureWebJobsStorage"];
-
+            var dashboardConnectionString = ConfigurationManager.AppSettings["AzureWebJobsDashboard"];
+            var storageConnectionString = ConfigurationManager.AppSettings["AzureWebJobsStorage"];
             var svcCollection = new ServiceCollection();
-            svcCollection.AddSplunkLogging(
-                new SplunkOptions
-                {
-                    SplunkHost = ConfigurationManager.AppSettings["SplunkHost"],
-                    Token = ConfigurationManager.AppSettings["LRRToken"]
-                });
-
-            svcCollection.AddScoped<ILoanRequestRepository,
-                MockLoanRequestRepository>();
-            svcCollection.AddScoped<IPipe<IReadOnlyCollection<LoanRequest>>,
-                QueueBackedSubmittedLoanRequestsPipe>();
-            svcCollection.AddSingleton(_ =>
-            SimpleQueueHelperFactory.Create(
-                "submitted-loan-requests",
-                storageConnectionString));
+            svcCollection.AddSplunkLogging(new SplunkOptions { SplunkHost = ConfigurationManager.AppSettings["SplunkHost"], Token = ConfigurationManager.AppSettings["LRRToken"] });
+            svcCollection.AddScoped<ILoanRequestRepository, MockLoanRequestRepository>();
+            svcCollection.AddScoped<IPipe<IReadOnlyCollection<LoanRequest>>, QueueBackedSubmittedLoanRequestsPipe>();
+            svcCollection.AddSingleton(_ => SimpleQueueHelperFactory.Create("submitted-loan-requests", storageConnectionString));
             svcCollection.AddTransient<Functions>();
-
             var config = new JobHostConfiguration();
             config.NameResolver = new TriggerExpressionResolver();
             config.DashboardConnectionString = dashboardConnectionString;
             config.StorageConnectionString = storageConnectionString;
-            config.JobActivator = new MyActivator(
-                svcCollection.BuildServiceProvider());
+            config.JobActivator = new MyActivator(svcCollection.BuildServiceProvider());
             config.UseTimers();
 
             if (config.IsDevelopment)
@@ -54,8 +38,6 @@ namespace LoanRequestRetriever
             }
 
             var host = new JobHost(config);
-
-            // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }
     }
