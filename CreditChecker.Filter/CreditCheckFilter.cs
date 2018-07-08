@@ -27,7 +27,13 @@ namespace CreditChecker.Filter
             }
 
             EnrichedLoanRequest enrichedLoanRequest = default(EnrichedLoanRequest);
+            enrichedLoanRequest = await CreditCheckLoanRequest(loanRequest, enrichedLoanRequest);
 
+            return await Task.FromResult(enrichedLoanRequest);
+        }
+
+        private async Task<EnrichedLoanRequest> CreditCheckLoanRequest(LoanRequest loanRequest, EnrichedLoanRequest enrichedLoanRequest)
+        {
             using (var httpClient = new HttpClient(httpMessageHandlerFactory.Create(), true))
             {
                 httpClient.BaseAddress = httpMessageHandlerFactory.BaseUri;
@@ -39,24 +45,7 @@ namespace CreditChecker.Filter
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-
-                    dynamic obj = JsonConvert.DeserializeObject(content);
-
-                    enrichedLoanRequest = new EnrichedLoanRequest();
-                    enrichedLoanRequest.OriginalLoanRequest = loanRequest;
-                    enrichedLoanRequest.CreditCheckReport = new CreditCheckReport
-                    {
-                        CitizenServiceNumber = loanRequest.CitizenServiceNumber,
-                        CreditRating = obj.CreditRating,
-                        CreditScore = obj.Score,
-                        Description = obj.Status
-                    };
-                    logger.Information(
-                        "Credit check service returned {code} {response} for {@request}",
-                        response.StatusCode,
-                        response.ReasonPhrase,
-                        loanRequest);
+                    enrichedLoanRequest = await ProcessSuccessResponse(loanRequest, enrichedLoanRequest, response);
                 }
                 else
                 {
@@ -68,7 +57,30 @@ namespace CreditChecker.Filter
                 }
             }
 
-            return await Task.FromResult(enrichedLoanRequest);
+            return enrichedLoanRequest;
+        }
+
+        private async Task<EnrichedLoanRequest> ProcessSuccessResponse(LoanRequest loanRequest, EnrichedLoanRequest enrichedLoanRequest, HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+
+            dynamic obj = JsonConvert.DeserializeObject(content);
+
+            enrichedLoanRequest = new EnrichedLoanRequest();
+            enrichedLoanRequest.OriginalLoanRequest = loanRequest;
+            enrichedLoanRequest.CreditCheckReport = new CreditCheckReport
+            {
+                CitizenServiceNumber = loanRequest.CitizenServiceNumber,
+                CreditRating = obj.CreditRating,
+                CreditScore = obj.Score,
+                Description = obj.Status
+            };
+            logger.Information(
+                "Credit check service returned {code} {response} for {@request}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                loanRequest);
+            return enrichedLoanRequest;
         }
     }
 }
