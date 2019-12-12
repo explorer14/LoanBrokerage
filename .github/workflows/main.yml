@@ -17,4 +17,5 @@ jobs:
         # The name of the task to execute. Note that this argument must be supported by the script.
         target: Test
         # The verbosity level with which to run the script. Valid values are: Quiet, Minimal, Normal, Verbose or Diagnostic.
-        verbosity: Verbose                
+        verbosity: Verbose           
+        cake-bootstrap: true     
